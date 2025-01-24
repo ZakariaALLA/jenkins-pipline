@@ -36,7 +36,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh """
+                    bat """
                     docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} .
                     """
                 }
