@@ -27,7 +27,6 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                echo "These are variables ${SONAR_HOST_URL} AND ${SONAR_AUTH_TOKEN}:${VERSION}."
                 withSonarQubeEnv('LocalSonarQube') {
                     bat """
                     sonar-scanner -Dsonar.projectKey=jenkins-pipline -Dsonar.sources=. -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_AUTH_TOKEN}
