@@ -74,7 +74,7 @@ pipeline {
             }
             steps {
                 script {
-                    withEnv(["KUBECONFIG=/C:/Users/D/.kube/config"]) {
+                    withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
                             kubectl delete pod hello-world-pod || echo "No existing pod found"
                             kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} --port=8080
