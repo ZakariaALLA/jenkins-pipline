@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'windows' }
+    agent
 
     parameters {
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Do you want to deploy this version ?')
