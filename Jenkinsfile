@@ -75,7 +75,7 @@ pipeline {
             steps {
                 bat """
                     kubectl delete pod hello-world-pod || echo "No existing pod found"
-                    kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} --port=8080
+                    kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} --port=8001
                     kubectl expose pod hello-world-pod --type=NodePort --name=hello-world-service
                 """
             }
