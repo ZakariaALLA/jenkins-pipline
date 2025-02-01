@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent { label 'windows' }
+
+    parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Do you want to deploy this version ?')
+    }
 
     environment {
         DOCKER_REGISTRY = 'zakariaalla'
@@ -61,6 +65,19 @@ pipeline {
                 script {
                     echo "This stage is to push the image ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} to Artifactory."
                 }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            when {
+                expression { return params.DEPLOY }
+            }
+            steps {
+                bat """
+                    kubectl delete pod my-app || echo "No existing pod found"
+                    kubectl run my-app --image=${IMAGE_NAME}:${env.IMAGE_TAG} --port=8080
+                    kubectl expose pod my-app --type=NodePort --name=my-app-service
+                """
             }
         }
     }
