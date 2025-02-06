@@ -8,9 +8,9 @@ pipeline {
     environment {
         DOCKER_REGISTRY = 'zakariaalla'
         IMAGE_NAME = 'helloworld-java'
-        VERSION = '1.0'
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_AUTH_TOKEN = credentials('jenkins-pipline-java-token')
+        SHORT_COMMIT = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
     stages {
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} .
+                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT} .
                     """
                 }
             }
@@ -63,7 +63,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    echo "This stage is to push the image ${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} to Artifactory."
+                    bat """
+                    docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT}
+                    """
                 }
             }
         }
@@ -77,7 +79,7 @@ pipeline {
                     withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
                             kubectl delete pod hello-world-pod || echo "No existing pod found"
-                            kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${VERSION} --port=8080
+                            kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT} --port=8080
                             kubectl expose pod hello-world-pod --type=NodePort --name=hello-world-service
                         """
                     }
