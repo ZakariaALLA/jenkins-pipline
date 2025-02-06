@@ -16,10 +16,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                def commit = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                commit = commit.replaceAll("\r|\n", "")
-                echo "Commit Hash: ${commit}"
-                env.SHORT_COMMIT = commit
             }
         }
         stage('Build') {
@@ -56,8 +52,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    def shortCommit = bat(script: 'git rev-parse --short HEAD').trim()
+                    echo "Short Commit Hash: ${shortCommit}"
+                    env.SHORT_COMMIT = shortCommit
+
                     bat """
-                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT} .
+                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT} .
                     """
                 }
             }
@@ -67,7 +67,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                    docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
+                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
                     """
                 }
             }
