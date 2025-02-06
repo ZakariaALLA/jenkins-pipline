@@ -10,16 +10,16 @@ pipeline {
         IMAGE_NAME = 'helloworld-java'
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_AUTH_TOKEN = credentials('jenkins-pipline-java-token')
-        
-        SHORT_COMMIT = bat """
-        git rev-parse --short HEAD
-        """
     }
 
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+                def commit = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                commit = commit.replaceAll("\r|\n", "")
+                echo "Commit Hash: ${commit}"
+                env.SHORT_COMMIT = commit
             }
         }
         stage('Build') {
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT} .
+                    docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT} .
                     """
                 }
             }
@@ -67,7 +67,7 @@ pipeline {
             steps {
                 script {
                     bat """
-                    docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT}
+                    docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
                     """
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
                     withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
                             kubectl delete pod hello-world-pod || echo "No existing pod found"
-                            kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT} --port=8080
+                            kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT} --port=8080
                             kubectl expose pod hello-world-pod --type=NodePort --name=hello-world-service
                         """
                     }
