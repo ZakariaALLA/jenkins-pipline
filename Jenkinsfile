@@ -90,24 +90,11 @@ pipeline {
                 script {
                     withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
-                            echo "Deleting existing job if it exists..."
-                            kubectl delete job hello-world-job --ignore-not-found=true
+                            echo "Updating deployment.yml with new image tag..."
+                            powershell -Command "(Get-Content k8s/deployment.yml) -replace 'zakariaalla/helloworld-java:latest', '${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}' | Set-Content k8s/deployment.yml"
 
-                            echo "Creating a Kubernetes Job for Hello World App..."
-                            kubectl apply -f - <<EOF
-                            apiVersion: batch/v1
-                            kind: Job
-                            metadata:
-                            name: hello-world-job
-                            spec:
-                            template:
-                                spec:
-                                containers:
-                                - name: hello-world
-                                    image: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
-                                    command: ["java", "Hello"]
-                                restartPolicy: Never
-                            EOF
+                            echo "Applying Kubernetes Deployment..."
+                            kubectl apply -f k8s/deployment.yml
                         """
                     }
                 }
