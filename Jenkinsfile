@@ -52,9 +52,12 @@ pipeline {
         stage('Get Commit Hash') {
             steps {
                 script {
-                    def shortCommit = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Short Commit Hash: ${shortCommit}"
-                    env.SHORT_COMMIT = shortCommit
+                    def commitOutput = bat(script: 'git rev-parse --short HEAD', returnStdout: true)
+                    def lines = commitOutput.split("\r?\n")
+                    def commit = lines[lines.length - 1].trim()
+
+                    echo "Extracted Commit Hash: ${commit}"
+                    env.SHORT_COMMIT = commit
                 }
             }
         }
