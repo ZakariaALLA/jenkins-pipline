@@ -90,14 +90,30 @@ pipeline {
                 script {
                     withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
-                            kubectl delete pod hello-world-pod || echo "No existing pod found"
-                            kubectl run hello-world-pod --image=${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT} --port=8080
-                            kubectl expose pod hello-world-pod --type=NodePort --name=hello-world-service
+                            echo "Deleting existing job if it exists..."
+                            kubectl delete job hello-world-job --ignore-not-found=true
+
+                            echo "Creating a Kubernetes Job for Hello World App..."
+                            kubectl apply -f - <<EOF
+                            apiVersion: batch/v1
+                            kind: Job
+                            metadata:
+                            name: hello-world-job
+                            spec:
+                            template:
+                                spec:
+                                containers:
+                                - name: hello-world
+                                    image: ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
+                                    command: ["java", "Hello"]
+                                restartPolicy: Never
+                            EOF
                         """
                     }
                 }
             }
         }
+
     }
 
     post {
