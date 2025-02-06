@@ -52,7 +52,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def shortCommit = bat(script: 'git rev-parse --short HEAD').trim()
+                    def shortCommit = bat(script: 'git rev-parse --short HEAD')
                     echo "Short Commit Hash: ${shortCommit}"
                     env.SHORT_COMMIT = shortCommit
 
