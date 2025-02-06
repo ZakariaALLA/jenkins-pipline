@@ -10,7 +10,6 @@ pipeline {
         IMAGE_NAME = 'helloworld-java'
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_AUTH_TOKEN = credentials('jenkins-pipline-java-token')
-        SHORT_COMMIT = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
     stages {
@@ -53,6 +52,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    SHORT_COMMIT = bat(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     bat """
                     docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${SHORT_COMMIT} .
                     """
