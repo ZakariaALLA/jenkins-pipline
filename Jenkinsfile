@@ -10,8 +10,6 @@ pipeline {
         IMAGE_NAME = 'helloworld-java'
         SONAR_HOST_URL = 'http://localhost:9000'
         SONAR_AUTH_TOKEN = credentials('jenkins-pipline-java-token')
-        DOCKER_USERNAME = credentials('docker-hub-username')
-        DOCKER_PASSWORD = credentials('docker-hub-password')
     }
 
     stages {
@@ -77,10 +75,9 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    bat """            
-                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}
-                    """
+                    withDockerRegistry([credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/']) {
+                        bat "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}"
+                    }
                 }
             }
         }
