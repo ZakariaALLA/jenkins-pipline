@@ -91,7 +91,7 @@ pipeline {
                     withEnv(["KUBECONFIG=C:/Users/D/.kube/config"]) {
                         bat """
                             echo "Updating deployment.yml with new image tag..."
-                            powershell -Command "(Get-Content k8s/deployment.yml) -replace 'zakariaalla/helloworld-java:latest', '${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}' | Set-Content k8s/deployment.yml"
+                            powershell -Command "(Get-Content k8s/deployment.yml) -replace 'zakariaalla/helloworld-java:v1', '${DOCKER_REGISTRY}/${IMAGE_NAME}:${env.SHORT_COMMIT}' | Set-Content k8s/deployment.yml"
 
                             echo "Applying Kubernetes Deployment..."
                             kubectl apply -f k8s/deployment.yml
